@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Police Ticket Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.3/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: transparent; /* Make sure background color is fully transparent */
+            margin: 0;
+            height: 100vh; /* Ensures the body takes full viewport height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .Ccustom-box {
+            width: 960px; /* Adjusted from initial width setting */
+            height: 768px; /* Adjusted from initial height setting */
+            background: rgba(29, 29, 29, 0); /* Dark gray background */
+            display: flex;
+            justify-content: center; /* Center-align children horizontally */
+            align-items: center; /* Center-align children vertically */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* Subtle shadow for better aesthetics */
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-gray-200">
+    <div class="Ccustom-box">
+        <div class="bg-gray-900 p-8 rounded-lg shadow-lg opacity-90 relative">
+            <button class="close-button absolute top-2 right-3 text-white text-lg font-semibold" onclick="display(false)">X</button>
+            <h1 class="text-xl font-bold mb-6 text-center">Issue Traffic Ticket</h1>
+            <form id="ticketForm" class="space-y-6">
+                <div>
+                    <label for="officer_name" class="block text-sm font-medium text-gray-200">Officer Name</label>
+                    <input type="text" id="officer_name" name="officer_name" required
+                           class="mt-1 block w-full px-3 py-2 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="badge_number" class="block text-sm font-medium text-gray-200">Badge Number</label>
+                    <input type="text" id="badge_number" name="badge_number" required
+                           class="mt-1 block w-full px-3 py-2 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="target_id" class="block text-sm font-medium text-gray-200">Target ID</label>
+                    <input type="number" id="target_id" name="target_id" required
+                           class="mt-1 block w-full px-3 py-2 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="violation" class="block text-sm font-medium text-gray-200">Violation Type</label>
+                    <input type="text" id="violation" name="violation" required
+                           class="mt-1 block w-full px-3 py-2 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="fine_amount" class="block text-sm font-medium text-gray-200">Fine Amount</label>
+                    <input type="number" id="fine_amount" name="fine_amount" required
+                           class="mt-1 block w-full px-3 py-2 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <button type="button" id="submitTicket" class="w-full py-2 bg-blue-500 rounded hover:bg-blue-600 focus:outline-none text-white">
+                    Issue Ticket
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+    <script>
+    function display(bool) {
+        if (bool) {
+            $(".Ccustom-box").fadeIn("slow");
+        } else {
+            $(".Ccustom-box").fadeOut("slow");
+        }
+    }
+    display(false); // Initial call to hide the box
+
+    window.addEventListener('message', function(event) {
+        var item = event.data;
+        console.log('Received message:', JSON.stringify(item));
+
+        if (item.type === "ui") {
+            display(item.status);
+        }
+    });
+
+    $(".close-button").click(function() {
+        display(false);
+        $.post(`https://${GetParentResourceName()}/close`);
+    });
+
+    document.onkeyup = function(data) {
+        if (data.which == 27) {
+            display(false);
+            $.post(`https://${GetParentResourceName()}/close`);
+        }
+    };
+        $(document).ready(function() {
+            $('#submitTicket').click(function(e) {
+                e.preventDefault();
+                var data = {
+                    officer_name: $('#officer_name').val(),
+                    badge_number: $('#badge_number').val(),
+                    target_id: $('#target_id').val(),
+                    violation: $('#violation').val(),
+                    fine_amount: $('#fine_amount').val()
+                };
+                display(false);  // Hide the form immediately after click
+                fetch(`https://${GetParentResourceName()}/sendTicketData`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json; charset=utf-8'
+                    },
+                    body: JSON.stringify(data)
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+
